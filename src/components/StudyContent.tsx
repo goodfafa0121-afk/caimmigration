@@ -74,8 +74,8 @@ export default function StudyContent({ initialHeroImageUrl }: StudyContentProps)
     if (heroImageUrl !== undefined) return;
     fetch("/api/site/study-hero-image")
       .then((r) => r.json())
-      .then((d) => setHeroImageUrl(d?.imageUrl ?? null))
-      .catch(() => setHeroImageUrl(null));
+      .then((d) => setHeroImageUrl(d?.imageUrl ?? undefined))
+      .catch(() => setHeroImageUrl(undefined));
   }, [heroImageUrl]);
 
   const heroBg = heroImageUrl && heroImageUrl.trim() ? heroImageUrl : DEFAULT_STUDY_HERO;

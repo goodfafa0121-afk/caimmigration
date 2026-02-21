@@ -22,6 +22,20 @@ const PLACEHOLDER_DATA_URI =
 const TYPE_KEYS = ["all", "tech", "invest", "startup", "family", "study", "other"] as const;
 type TypeKey = (typeof TYPE_KEYS)[number];
 
+type ProjectItem = {
+  type?: string;
+  hot?: boolean;
+  slug?: string;
+  title: string;
+  desc: string;
+  period: string;
+  investment?: string;
+  identity: string;
+  language: string;
+  budget?: string;
+  image_url?: string;
+};
+
 export default function ImmigrationContent() {
   const { t } = useLanguage();
   const [projectType, setProjectType] = useState<TypeKey>("all");
@@ -36,8 +50,8 @@ export default function ImmigrationContent() {
     { key: "other" as const, label: t.immigration.projectTypes.other },
   ];
 
-  const staticProjects = t.immigration.projects;
-  const [projects, setProjects] = useState(staticProjects);
+  const staticProjects = t.immigration.projects as unknown as ProjectItem[];
+  const [projects, setProjects] = useState<ProjectItem[]>(staticProjects);
   const [slotImages, setSlotImages] = useState<string[]>(() => Array(12).fill(""));
   const [imageFailedKeys, setImageFailedKeys] = useState<Set<string>>(new Set());
   const [imageUseFirstFallback, setImageUseFirstFallback] = useState<Set<string>>(new Set());
@@ -55,18 +69,22 @@ export default function ImmigrationContent() {
         if (!Array.isArray(d?.items) || d.items.length === 0) return;
         const apiItems = d.items as { image_url?: string; title?: string; [k: string]: unknown }[];
         // 用后台数据只更新图片等，保留静态的 slug/标题顺序，避免整表替换导致闪动
-        setProjects(
-          staticProjects.map((s, i) => {
-            const api = apiItems[i];
-            if (!api) return s;
-            return {
+        const next: ProjectItem[] = [];
+        for (let i = 0; i < staticProjects.length; i++) {
+          const s = staticProjects[i];
+          const api = apiItems[i];
+          if (!api) {
+            next.push({ ...s });
+          } else {
+            next.push({
               ...s,
               ...api,
-              slug: (s as { slug?: string }).slug ?? api.slug,
-              title: api.title && String(api.title).trim() ? api.title : (s as { title: string }).title,
-            };
-          })
-        );
+              slug: s.slug ?? (api.slug as string | undefined),
+              title: api.title && String(api.title).trim() ? api.title : s.title,
+            });
+          }
+        }
+        setProjects(next);
       })
       .catch(() => {});
   }, []);

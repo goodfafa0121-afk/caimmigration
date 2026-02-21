@@ -48,8 +48,8 @@ export default function VisaContent({ initialHeroImageUrl, initialCardImages = [
     if (heroImageUrl !== undefined) return;
     fetch("/api/site/visa-hero-image")
       .then((r) => r.json())
-      .then((d) => setHeroImageUrl(d?.imageUrl ?? null))
-      .catch(() => setHeroImageUrl(null));
+      .then((d) => setHeroImageUrl(d?.imageUrl ?? undefined))
+      .catch(() => setHeroImageUrl(undefined));
   }, [heroImageUrl]);
 
   useEffect(() => {
