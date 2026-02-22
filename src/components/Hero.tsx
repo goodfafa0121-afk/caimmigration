@@ -61,14 +61,16 @@ export default function Hero({ initialBanners = [] }: HeroProps) {
         style={{ transform: `translateX(-${index * 100}%)` }}
       >
         {useBackend
-          ? banners.map((b, i) => (
+          ? banners.map((b, i) => {
+              const bgUrl = (b.image_url && b.image_url.trim()) ? b.image_url.trim() : BG_IMAGES[i % BG_IMAGES.length];
+              return (
               <div
                 key={i}
                 className="relative min-w-full flex items-center justify-center shrink-0"
               >
                 <div
                   className="absolute inset-0 bg-cover bg-center"
-                  style={{ backgroundImage: `url('${b.image_url}')` }}
+                  style={{ backgroundImage: `url('${bgUrl.replace(/'/g, "%27")}')` }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-black/25 to-[#1a2332]/55" />
                 <div className="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 text-center mt-10">
@@ -88,7 +90,8 @@ export default function Hero({ initialBanners = [] }: HeroProps) {
                   </div>
                 </div>
               </div>
-            ))
+            );
+          })
           : SLIDE_KEYS.map((key, i) => {
               const slide = t.hero[key];
               if (!slide || typeof slide !== "object" || !("title" in slide)) {
